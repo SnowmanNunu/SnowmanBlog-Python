@@ -1,0 +1,18 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{ message }}</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+    <main class="wrapper">
+        <h1>🚀 SnowmanBlog (Python/Django)</h1>
+        <p>{{ message }}</p>
+        <p>Django 脚手架最小验证成功 —— 首页渲染 OK。</p>
+        <p><a href="/admin/">进入 Django Admin 后台</a></p>
+    </main>
+</body>
+</html>

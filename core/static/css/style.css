@@ -1,0 +1,4 @@
+body { margin: 0; font-family: system-ui, sans-serif; background: #f4f4f5; color: #222; }
+.wrapper { max-width: 680px; margin: 8vh auto; padding: 2rem; }
+h1 { color: #2563eb; }
+a { color: #0f766e; }
