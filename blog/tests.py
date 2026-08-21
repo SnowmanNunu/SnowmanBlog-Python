@@ -94,4 +94,69 @@ class ArticleModelTest(TestCase):
 
     def test_abstract_soft_delete(self):
         """确认抽象基类被覆盖(防御性检查)。"""
+
+
+class ScheduledPublishTaskTest(TestCase):
+    def setUp(self):
+        self.user = get_user_model().objects.create_user(
+            username="pubuser", password="test12345"
+        )
+
+    def test_publish_due_scheduled(self):
+        """到期的定时文章被发布,未到期的不受影响。"""
+        from .tasks import publish_scheduled_articles
+
+        due = Article.objects.create(
+            title="到期", status=Article.Status.SCHEDULED,
+            published_at=timezone.now() - timezone.timedelta(minutes=1),
+            author=self.user,
+        )
+        Article.objects.create(
+            title="未来", status=Article.Status.SCHEDULED,
+            published_at=timezone.now() + timezone.timedelta(days=1),
+            author=self.user,
+        )
+        result = publish_scheduled_articles()
+        self.assertEqual(result["published"], 1)
+        # 到期篇已发布
+        self.assertEqual(Article.objects.get(pk=due.pk).status, Article.Status.PUBLISHED)
+        # 未来篇仍定时
+        future = Article.objects.get(title="未来")
+        self.assertEqual(future.status, Article.Status.SCHEDULED)
+
+
+class AdminSmokeTest(TestCase):
+    """验证后台各 changelist 可访问(登录后 200)。"""
+
+    def setUp(self):
+        self.admin_user = get_user_model().objects.create_superuser(
+            username="super", password="test12345", email="s@example.com"
+        )
+        self.client.login(username="super", password="test12345")
+
+    def test_admin_changelists_accessible(self):
+        from django.urls import reverse
+
+        urls = [
+            "admin:blog_article_changelist",
+            "admin:blog_category_changelist",
+            "admin:blog_tag_changelist",
+            "admin:blog_column_changelist",
+            "admin:interaction_comment_changelist",
+            "admin:interaction_guestbook_changelist",
+            "admin:interaction_articlelike_changelist",
+            "admin:site_config_setting_changelist",
+            "admin:site_config_friendlink_changelist",
+        ]
+        for name in urls:
+            with self.subTest(name=name):
+                resp = self.client.get(reverse(name))
+                self.assertEqual(resp.status_code, 200, msg=name)
+
+    def test_article_add_form_accessible(self):
+        from django.urls import reverse
+
+        resp = self.client.get(reverse("admin:blog_article_add"))
+        self.assertEqual(resp.status_code, 200)
+
         self.assertTrue(issubclass(Article, SoftDeletableModel))

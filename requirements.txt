@@ -12,6 +12,9 @@ django-celery-beat==2.9.0
 # 图片(ImageField 封面)
 Pillow==12.3.0
 
+# 多云存储(存储设置页 backend)
+django-storages==1.14.6
+
 # 部署
 gunicorn==23.0.0
 PyMySQL==1.2.0

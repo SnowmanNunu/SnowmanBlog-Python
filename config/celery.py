@@ -10,6 +10,14 @@ app = Celery("snowmanblog")
 # 从 Django settings 读取 Celery 配置(namespace='CELERY' 使 CELERY_* 生效)
 app.config_from_object("django.conf:settings", namespace="CELERY")
 
+# 定时任务调度:每分钟扫描一次到期定时文章
+app.conf.beat_schedule = {
+    "publish-scheduled-articles-every-minute": {
+        "task": "blog.publish_scheduled_articles",
+        "schedule": 60.0,  # 秒
+    },
+}
+
 # 自动发现各 app 中的 tasks.py
 app.autodiscover_tasks()
 
