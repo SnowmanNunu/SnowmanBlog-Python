@@ -15,16 +15,32 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
+from django.contrib.sitemaps.views import sitemap
 from django.urls import include, path, register_converter
 
 from blog.converters import UnicodeSlugConverter
+from blog.feeds import LatestArticleFeed
+from blog.sitemaps import ArticleSitemap, StaticViewSitemap
 
 # 全局注册 Unicode slug converter(支持中文 slug),供各 app 使用
 register_converter(UnicodeSlugConverter, "uslug")
 
+sitemaps = {
+    "articles": ArticleSitemap,
+    "static": StaticViewSitemap,
+}
+
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("blog/", include("blog.urls")),
+    path("rss/", LatestArticleFeed(), name="rss_feed"),
+    path("rss.xml", LatestArticleFeed(), name="rss_feed_xml"),
+    path(
+        "sitemap.xml",
+        sitemap,
+        {"sitemaps": sitemaps},
+        name="django.contrib.sitemaps.views.sitemap",
+    ),
     path("", include("interaction.urls")),
     path("", include("core.urls")),
 ]

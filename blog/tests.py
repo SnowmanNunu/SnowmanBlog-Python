@@ -95,6 +95,7 @@ class ArticleModelTest(TestCase):
 
     def test_abstract_soft_delete(self):
         """确认抽象基类被覆盖(防御性检查)。"""
+        self.assertTrue(issubclass(Article, SoftDeletableModel))
 
 
 class ScheduledPublishTaskTest(TestCase):
@@ -252,4 +253,45 @@ class FrontendViewTest(TestCase):
         self.assertNotContains(resp, "草稿不显示")
 
 
-        self.assertTrue(issubclass(Article, SoftDeletableModel))
+class SitemapRssTest(TestCase):
+    """Sitemap 与 RSS 输出测试。"""
+
+    def setUp(self):
+        self.user = get_user_model().objects.create_user(
+            username="sitemap", password="test12345"
+        )
+        now = timezone.now()
+        Article.objects.create(
+            title="可被索引的文章", author=self.user, content="# 内容",
+            status=Article.Status.PUBLISHED, published_at=now,
+        )
+        Article.objects.create(
+            title="草稿不索引", author=self.user, content="x",
+            status=Article.Status.DRAFT,
+        )
+
+    def test_sitemap_contains_published_article(self):
+        resp = self.client.get("/sitemap.xml")
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, "<urlset")
+        self.assertContains(resp, "<url>")
+        # 草稿不应被索引(sitemap 中不含草稿条目)
+        self.assertNotContains(resp, "草稿不索引")
+
+    def test_rss_returns_feed(self):
+        resp = self.client.get("/rss/")
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp["Content-Type"], "application/rss+xml; charset=utf-8")
+        self.assertContains(resp, "<rss")
+        self.assertContains(resp, "<item>")
+        # RSS 标题为中文原文
+        self.assertContains(resp, "可被索引的文章")
+        self.assertNotContains(resp, "草稿不索引")
+
+    def test_base_template_has_theme_toggle(self):
+        """暗黑模式切换按钮与主题脚本存在。"""
+        Article.objects.filter(title="可被索引的文章").update(published_at=timezone.now())
+        resp = self.client.get("/blog/")
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, "theme-toggle")
+        self.assertContains(resp, "data-theme")

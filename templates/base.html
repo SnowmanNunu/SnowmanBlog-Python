@@ -1,12 +1,13 @@
 {% load static %}
 <!DOCTYPE html>
-<html lang="zh-Hans">
+<html lang="zh-Hans" data-theme="light">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{% block title %}SnowmanBlog{% endblock %}</title>
     <meta name="description" content="{% block meta_description %}{% endblock %}">
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="alternate" type="application/rss+xml" title="SnowmanBlog RSS" href="{% url 'rss_feed' %}">
     {% block extra_head %}{% endblock %}
 </head>
 <body>
@@ -18,9 +19,11 @@
             <a href="{% url 'blog:column_list' %}">专栏</a>
             <a href="{% url 'interaction:guestbook' %}">留言板</a>
             <a href="{% url 'blog:search' %}">搜索</a>
+            <a href="{% url 'rss_feed' %}">RSS</a>
             {% if user.is_authenticated %}
                 <a href="/admin/">后台</a>
             {% endif %}
+            <button type="button" id="theme-toggle" class="theme-toggle" title="切换深色/浅色模式">🌙</button>
         </nav>
     </div>
 </header>
@@ -36,5 +39,24 @@
     <div class="container">© {% now "Y" %} SnowmanBlog · Powered by Django</div>
 </footer>
 {% block extra_js %}{% endblock %}
+<script>
+(function () {
+    var root = document.documentElement;
+    var btn = document.getElementById('theme-toggle');
+    // 恢复已保存主题
+    var saved = localStorage.getItem('snowblog-theme');
+    if (saved === 'dark') {
+        root.setAttribute('data-theme', 'dark');
+        btn.textContent = '☀️';
+    }
+    btn.addEventListener('click', function () {
+        var current = root.getAttribute('data-theme');
+        var next = current === 'dark' ? 'light' : 'dark';
+        root.setAttribute('data-theme', next);
+        localStorage.setItem('snowblog-theme', next);
+        btn.textContent = next === 'dark' ? '☀️' : '🌙';
+    });
+})();
+</script>
 </body>
 </html>
