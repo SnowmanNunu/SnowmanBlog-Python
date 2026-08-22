@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}留言板 · SnowmanBlog{% endblock %}
+{% block content %}
+<h1 class="page-title">留言板</h1>
+<form class="guestbook-form" action="{% url 'interaction:guestbook' %}" method="post">
+    {% csrf_token %}
+    <input type="text" name="nickname" placeholder="昵称" required>
+    <input type="email" name="email" placeholder="邮箱(选填)">
+    <textarea name="content" placeholder="写下你的留言..." required></textarea>
+    <button type="submit">提交留言</button>
+</form>
+<div class="guestbook-list">
+    {% for entry in entries %}
+        <div class="card">
+            <div class="card-body">
+                <strong>{{ entry.nickname }}{% if entry.is_admin %} <span class="badge">博主</span>{% endif %}</strong>
+                <p>{{ entry.content }}</p>
+                <small>{{ entry.created_at|date:"Y-m-d H:i" }}</small>
+                {% if entry.reply %}
+                    <div class="reply"><strong>博主回复:</strong> {{ entry.reply }}</div>
+                {% endif %}
+            </div>
+        </div>
+    {% empty %}
+        <p class="empty">还没有留言,来抢沙发吧~</p>
+    {% endfor %}
+</div>
+{% endblock %}

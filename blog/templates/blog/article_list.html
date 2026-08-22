@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block title %}文章列表 · SnowmanBlog{% endblock %}
+{% block content %}
+<h1 class="page-title">
+    {% if category %}分类:{{ category.name }}
+    {% elif tag %}标签:{{ tag.name }}
+    {% else %}最新文章{% endif %}
+</h1>
+
+<div class="layout">
+    <div class="article-list">
+        {% for article in page_obj %}
+            <article class="card">
+                {% if article.cover_image %}
+                    <img class="card-cover" src="{{ article.cover_image.url }}" alt="{{ article.title }}">
+                {% endif %}
+                <div class="card-body">
+                    <h2 class="card-title">
+                        <a href="{% url 'blog:article_detail' article.slug %}">{{ article.title }}</a>
+                        {% if article.is_top %}<span class="badge">置顶</span>{% endif %}
+                    </h2>
+                    <p class="card-meta">
+                        <span>{{ article.published_at|date:"Y-m-d" }}</span>
+                        {% if article.author %} · {{ article.author.username }}{% endif %}
+                        {% if article.category %} · <a href="{% url 'blog:category_detail' article.category.slug %}">{{ article.category.name }}</a>{% endif %}
+                    </p>
+                    <p class="card-summary">{{ article.summary|default:article.content|truncatechars:120 }}</p>
+                    <div class="card-tags">
+                        {% for t in article.tags.all %}
+                            <a class="tag" href="{% url 'blog:tag_detail' t.slug %}">#{{ t.name }}</a>
+                        {% endfor %}
+                    </div>
+                </div>
+            </article>
+        {% empty %}
+            <p class="empty">暂无文章。</p>
+        {% endfor %}
+
+        {% if page_obj.paginator.num_pages > 1 %}
+            <nav class="pagination">
+                {% if page_obj.has_previous %}
+                    <a href="?page={{ page_obj.previous_page_number }}{% if category %}&amp;category={{ category.slug }}{% endif %}">上一页</a>
+                {% endif %}
+                <span>第 {{ page_obj.number }} / {{ page_obj.paginator.num_pages }} 页</span>
+                {% if page_obj.has_next %}
+                    <a href="?page={{ page_obj.next_page_number }}{% if category %}&amp;category={{ category.slug }}{% endif %}">下一页</a>
+                {% endif %}
+            </nav>
+        {% endif %}
+    </div>
+
+    <aside class="sidebar">
+        <h3>专栏</h3>
+        <ul>
+            {% for c in categories %}
+                <li><a href="{% url 'blog:category_detail' c.slug %}">{{ c.name }}</a></li>
+            {% empty %}<li>暂无分类</li>{% endfor %}
+        </ul>
+    </aside>
+</div>
+{% endblock %}

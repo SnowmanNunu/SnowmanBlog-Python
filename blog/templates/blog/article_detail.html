@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+{% block title %}{{ article.seo_title|default:article.title }} · SnowmanBlog{% endblock %}
+{% block meta_description %}{{ article.seo_description|default:article.summary }}{% endblock %}
+{% block content %}
+<article class="article-detail">
+    <h1 class="article-title">{{ article.title }}</h1>
+    <p class="article-meta">
+        <span>{{ article.published_at|date:"Y-m-d H:i" }}</span>
+        {% if article.author %} · {{ article.author.username }}{% endif %}
+        {% if article.category %} · <a href="{% url 'blog:category_detail' article.category.slug %}">{{ article.category.name }}</a>{% endif %}
+        · <span id="like-count">{{ article.like_count }}</span> 赞 · {{ article.comment_count }} 评论 · {{ article.view_count }} 浏览
+    </p>
+
+    {% if article.cover_image %}
+        <img class="detail-cover" src="{{ article.cover_image.url }}" alt="{{ article.title }}">
+    {% endif %}
+
+    <div class="article-content">
+        {{ content_html|safe }}
+    </div>
+
+    <div class="article-tags">
+        {% for t in article.tags.all %}
+            <a class="tag" href="{% url 'blog:tag_detail' t.slug %}">#{{ t.name }}</a>
+        {% endfor %}
+    </div>
+
+    <div class="article-actions">
+        <form action="{% url 'interaction:toggle_like' article.slug %}" method="post" class="like-form">
+            {% csrf_token %}
+            <button type="submit" class="btn-like">♥ 点赞</button>
+        </form>
+    </div>
+
+    <nav class="prev-next">
+        {% if prev_article %}
+            <a href="{% url 'blog:article_detail' prev_article.slug %}">← 上一篇:{{ prev_article.title }}</a>
+        {% endif %}
+        {% if next_article %}
+            <a href="{% url 'blog:article_detail' next_article.slug %}">下一篇:{{ next_article.title }} →</a>
+        {% endif %}
+    </nav>
+</article>
+
+{% if related_articles %}
+<section class="related">
+    <h3>相关推荐</h3>
+    <ul>
+        {% for r in related_articles %}
+            <li><a href="{% url 'blog:article_detail' r.slug %}">{{ r.title }}</a></li>
+        {% endfor %}
+    </ul>
+</section>
+{% endif %}
+
+<section class="comments" id="comments">
+    <h3>评论({{ article.comment_count }})</h3>
+    <form class="comment-form" action="{% url 'interaction:submit_comment' article.slug %}" method="post">
+        {% csrf_token %}
+        {% if not user.is_authenticated %}
+            <input type="text" name="nickname" placeholder="昵称" required>
+        {% endif %}
+        <textarea name="content" placeholder="写下你的评论..." required></textarea>
+        <button type="submit">发表评论</button>
+    </form>
+    <ul class="comment-list">
+        {% for c in comments %}
+        <li class="comment">
+            <strong>{{ c.nickname }}{% if c.is_admin %} <span class="badge">博主</span>{% endif %}</strong>
+            <p>{{ c.content }}</p>
+            <small>{{ c.created_at|date:"Y-m-d H:i" }}</small>
+            <form class="reply-form" action="{% url 'interaction:submit_comment' article.slug %}" method="post">
+                {% csrf_token %}
+                <input type="hidden" name="parent_id" value="{{ c.id }}">
+                <input type="text" name="content" placeholder="回复 {{ c.nickname }}...">
+                <button type="submit">回复</button>
+            </form>
+            <ul class="replies">
+                {% for r in c.replies.all %}
+                    {% if r.status == 'approved' %}
+                    <li class="comment">
+                        <strong>{{ r.nickname }}{% if r.is_admin %} <span class="badge">博主</span>{% endif %}</strong>
+                        <p>@{{ r.reply_to_nick }} {{ r.content }}</p>
+                        <small>{{ r.created_at|date:"Y-m-d H:i" }}</small>
+                    </li>
+                    {% endif %}
+                {% endfor %}
+            </ul>
+        </li>
+        {% empty %}
+            <li class="empty">暂无评论,快来抢沙发~</li>
+        {% endfor %}
+    </ul>
+</section>
+{% endblock %}

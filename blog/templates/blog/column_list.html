@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}专栏 · SnowmanBlog{% endblock %}
+{% block content %}
+<h1 class="page-title">专栏</h1>
+<div class="grid">
+    {% for column in columns %}
+        <a class="card column-card" href="{% url 'blog:column_detail' column.slug %}">
+            {% if column.cover %}<img class="card-cover" src="{{ column.cover.url }}" alt="{{ column.name }}">{% endif %}
+            <div class="card-body">
+                <h2 class="card-title">{{ column.name }}</h2>
+                <p class="card-summary">{{ column.description|truncatechars:80 }}</p>
+                <span class="meta">{{ column.articles.count }} 篇文章</span>
+            </div>
+        </a>
+    {% empty %}
+        <p class="empty">暂无专栏。</p>
+    {% endfor %}
+</div>
+{% endblock %}

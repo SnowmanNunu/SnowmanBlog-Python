@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}搜索 · SnowmanBlog{% endblock %}
+{% block content %}
+<h1 class="page-title">搜索</h1>
+<form class="search-form" action="{% url 'blog:search' %}" method="get">
+    <input type="text" name="q" value="{{ query }}" placeholder="输入关键词搜索文章...">
+    <button type="submit">搜索</button>
+</form>
+{% if query %}
+    <p class="lead">「{{ query }}」的搜索结果:</p>
+{% endif %}
+<div class="article-list">
+    {% for article in page_obj %}
+        <article class="card">
+            <div class="card-body">
+                <h2 class="card-title"><a href="{% url 'blog:article_detail' article.slug %}">{{ article.title }}</a></h2>
+                <p class="card-meta">{{ article.published_at|date:"Y-m-d" }}</p>
+            </div>
+        </article>
+    {% empty %}
+        {% if query %}<p class="empty">未找到相关文章。</p>{% endif %}
+    {% endfor %}
+</div>
+{% endblock %}

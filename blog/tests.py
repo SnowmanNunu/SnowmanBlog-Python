@@ -1,5 +1,6 @@
 from django.contrib.auth import get_user_model
 from django.test import TestCase
+from django.urls import reverse
 from django.utils import timezone
 
 from core.soft_delete import SoftDeletableModel
@@ -158,5 +159,97 @@ class AdminSmokeTest(TestCase):
 
         resp = self.client.get(reverse("admin:blog_article_add"))
         self.assertEqual(resp.status_code, 200)
+
+
+class FrontendViewTest(TestCase):
+    """前台视图集成测试(文章列表/详情/搜索/分类/专栏/留言/评论/点赞)。"""
+
+    def setUp(self):
+        self.user = get_user_model().objects.create_user(
+            username="viewer", password="test12345"
+        )
+        self.category = Category.objects.create(name="前端")
+        self.tag = Tag.objects.create(name="测试")
+        self.column = Column.objects.create(name="专栏A")
+        self.article = Article.objects.create(
+            title="前台测试文章",
+            author=self.user,
+            category=self.category,
+            column=self.column,
+            content="# 标题\n\n正文内容",
+            summary="摘要",
+            status=Article.Status.PUBLISHED,
+            published_at=timezone.now(),
+        )
+        self.article.tags.add(self.tag)
+
+    def test_article_list_200(self):
+        resp = self.client.get("/blog/")
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, "前台测试文章")
+
+    def test_article_detail_renders_markdown(self):
+        resp = self.client.get(self.article.get_absolute_url())
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, "<h1>标题</h1>", html=True)
+        self.assertContains(resp, "前台测试文章")
+
+    def test_category_and_tag_filter(self):
+        cat_resp = self.client.get(reverse("blog:category_detail", args=[self.category.slug]))
+        self.assertEqual(cat_resp.status_code, 200)
+        tag_resp = self.client.get(reverse("blog:tag_detail", args=[self.tag.slug]))
+        self.assertEqual(tag_resp.status_code, 200)
+
+    def test_column_list_and_detail(self):
+        resp = self.client.get("/blog/columns/")
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, "专栏A")
+        col_resp = self.client.get(reverse("blog:column_detail", args=[self.column.slug]))
+        self.assertEqual(col_resp.status_code, 200)
+
+    def test_search_finds_article(self):
+        resp = self.client.get("/blog/search/", {"q": "前台"})
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, "前台测试文章")
+
+    def test_guestbook_page_and_submit(self):
+        resp = self.client.get("/guestbook/")
+        self.assertEqual(resp.status_code, 200)
+        post = self.client.post(
+            "/guestbook/",
+            {"nickname": "访客", "content": "你好"},
+            follow=True,
+        )
+        self.assertEqual(post.status_code, 200)
+        from interaction.models import GuestBook
+
+        self.assertTrue(GuestBook.objects.filter(nickname="访客").exists())
+
+    def test_comment_submit(self):
+        from interaction.models import Comment
+
+        resp = self.client.post(
+            reverse("interaction:submit_comment", args=[self.article.slug]),
+            {"content": "一条评论", "nickname": "评论者"},
+            follow=True,
+        )
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(Comment.objects.filter(article=self.article).count(), 1)
+
+    def test_article_like_increments(self):
+        resp = self.client.post(
+            reverse("interaction:toggle_like", args=[self.article.slug]), follow=True
+        )
+        self.assertEqual(resp.status_code, 200)
+        self.article.refresh_from_db()
+        self.assertEqual(self.article.like_count, 1)
+
+    def test_draft_not_visible_in_list(self):
+        Article.objects.create(
+            title="草稿不显示", author=self.user, content="x", status=Article.Status.DRAFT
+        )
+        resp = self.client.get("/blog/")
+        self.assertNotContains(resp, "草稿不显示")
+
 
         self.assertTrue(issubclass(Article, SoftDeletableModel))

@@ -15,9 +15,16 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import include, path
+from django.urls import include, path, register_converter
+
+from blog.converters import UnicodeSlugConverter
+
+# 全局注册 Unicode slug converter(支持中文 slug),供各 app 使用
+register_converter(UnicodeSlugConverter, "uslug")
 
 urlpatterns = [
     path("admin/", admin.site.urls),
+    path("blog/", include("blog.urls")),
+    path("", include("interaction.urls")),
     path("", include("core.urls")),
 ]
