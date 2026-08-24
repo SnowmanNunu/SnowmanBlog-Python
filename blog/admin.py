@@ -53,15 +53,28 @@ class ArticleAdmin(admin.ModelAdmin):
     """
 
     list_display = (
-        "title", "status", "category", "column", "is_top",
-        "published_at", "view_count", "like_count", "comment_count", "deleted_at",
+        "title",
+        "status",
+        "category",
+        "column",
+        "is_top",
+        "published_at",
+        "view_count",
+        "like_count",
+        "comment_count",
+        "deleted_at",
     )
     list_filter = ("status", "category", "column", "is_top")
     search_fields = ("title", "summary", "content", "slug")
     prepopulated_fields = {"slug": ("title",)}
     readonly_fields = (
-        "author", "view_count", "like_count", "comment_count",
-        "created_at", "updated_at", "deleted_at",
+        "author",
+        "view_count",
+        "like_count",
+        "comment_count",
+        "created_at",
+        "updated_at",
+        "deleted_at",
     )
     date_hierarchy = "published_at"
     autocomplete_fields = ("category", "column")

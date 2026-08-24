@@ -1,4 +1,4 @@
-from django.contrib import admin, messages
+from django.contrib import admin
 
 from .models import ArticleLike, Comment, GuestBook
 
@@ -16,7 +16,15 @@ class ReplyInline(admin.TabularInline):
 
 @admin.register(Comment)
 class CommentAdmin(admin.ModelAdmin):
-    list_display = ("nickname", "short_content", "article", "parent", "status", "is_admin", "created_at")
+    list_display = (
+        "nickname",
+        "short_content",
+        "article",
+        "parent",
+        "status",
+        "is_admin",
+        "created_at",
+    )
     list_filter = ("status", "is_admin")
     search_fields = ("content", "nickname", "reply_to_nick", "user__username")
     inlines = (ReplyInline,)

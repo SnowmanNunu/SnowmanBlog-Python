@@ -1,4 +1,5 @@
 import os
+
 import django
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings")
@@ -6,8 +7,9 @@ django.setup()
 
 from django.contrib.auth import get_user_model
 from django.utils import timezone
-from blog.models import Article, Category, Tag, Column
-from interaction.models import GuestBook, Comment
+
+from blog.models import Article, Category, Column, Tag
+from interaction.models import GuestBook
 
 u = get_user_model().objects.get(username="admin")
 cat = Category.objects.get_or_create(name="技术")[0]

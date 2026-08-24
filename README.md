@@ -95,6 +95,7 @@ docker compose up -d
 2. **系统 SQLite 3.26 过旧**(Django 5 需 3.31+) → 安装 `pysqlite3-binary`,并放置**部署专用** `sitecustomize.py` 将标准库 `sqlite3` 替换为新版(仅服务器需要,不进 git):
    ```python
    import sys
+
    try:
        import pysqlite3 as _s
    except ImportError:

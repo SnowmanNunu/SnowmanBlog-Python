@@ -4,15 +4,14 @@ from django.urls import reverse
 from django.utils import timezone
 
 from core.soft_delete import SoftDeletableModel
-from .models import Article, Category, Column, Tag
 from interaction.models import ArticleLike, Comment, GuestBook
+
+from .models import Article, Category, Column, Tag
 
 
 class ArticleModelTest(TestCase):
     def setUp(self):
-        self.user = get_user_model().objects.create_user(
-            username="tester", password="test12345"
-        )
+        self.user = get_user_model().objects.create_user(username="tester", password="test12345")
         self.category = Category.objects.create(name="技术")
         self.column = Column.objects.create(name="Python 系列")
 
@@ -36,9 +35,7 @@ class ArticleModelTest(TestCase):
 
     def test_soft_delete_and_restore(self):
         """软删除后默认不可见,恢复后重新可见;真删除从库中移除。"""
-        article = Article.objects.create(
-            title="回收站测试", author=self.user, content="content"
-        )
+        article = Article.objects.create(title="回收站测试", author=self.user, content="content")
         self.assertTrue(Article.objects.filter(pk=article.pk).exists())
 
         article.delete()
@@ -53,8 +50,10 @@ class ArticleModelTest(TestCase):
 
     def test_published_manager_only_returns_published(self):
         Article.objects.create(
-            title="已发布", status=Article.Status.PUBLISHED,
-            published_at=timezone.now(), author=self.user,
+            title="已发布",
+            status=Article.Status.PUBLISHED,
+            published_at=timezone.now(),
+            author=self.user,
         )
         Article.objects.create(title="草稿", status=Article.Status.DRAFT, author=self.user)
         self.assertEqual(Article.published.count(), 1)
@@ -62,7 +61,8 @@ class ArticleModelTest(TestCase):
     def test_scheduled_not_yet_visible(self):
         """未到发布时间的定时文章不属于已发布集合。"""
         Article.objects.create(
-            title="未来发布", status=Article.Status.SCHEDULED,
+            title="未来发布",
+            status=Article.Status.SCHEDULED,
             published_at=timezone.now() + timezone.timedelta(days=1),
             author=self.user,
         )
@@ -71,12 +71,13 @@ class ArticleModelTest(TestCase):
     def test_comment_nesting(self):
         """评论自关联嵌套回复。"""
         article = Article.objects.create(title="评论测试", author=self.user, content="x")
-        root = Comment.objects.create(
-            article=article, nickname="访客A", content="顶层评论"
-        )
+        root = Comment.objects.create(article=article, nickname="访客A", content="顶层评论")
         reply = Comment.objects.create(
-            article=article, parent=root, nickname="访客B",
-            content="回复A", reply_to_nick="访客A",
+            article=article,
+            parent=root,
+            nickname="访客B",
+            content="回复A",
+            reply_to_nick="访客A",
         )
         self.assertEqual(root.replies.count(), 1)
         self.assertEqual(reply.parent, root)
@@ -84,9 +85,11 @@ class ArticleModelTest(TestCase):
 
     def test_article_like_unique_constraint(self):
         """同一访客对同一文章不能重复点赞。"""
+        from django.db import IntegrityError
+
         article = Article.objects.create(title="点赞测试", author=self.user, content="x")
         ArticleLike.objects.create(article=article, visitor_key="visitor-1")
-        with self.assertRaises(Exception):
+        with self.assertRaises(IntegrityError):
             ArticleLike.objects.create(article=article, visitor_key="visitor-1")
 
     def test_guestbook_creation(self):
@@ -100,21 +103,21 @@ class ArticleModelTest(TestCase):
 
 class ScheduledPublishTaskTest(TestCase):
     def setUp(self):
-        self.user = get_user_model().objects.create_user(
-            username="pubuser", password="test12345"
-        )
+        self.user = get_user_model().objects.create_user(username="pubuser", password="test12345")
 
     def test_publish_due_scheduled(self):
         """到期的定时文章被发布,未到期的不受影响。"""
         from .tasks import publish_scheduled_articles
 
         due = Article.objects.create(
-            title="到期", status=Article.Status.SCHEDULED,
+            title="到期",
+            status=Article.Status.SCHEDULED,
             published_at=timezone.now() - timezone.timedelta(minutes=1),
             author=self.user,
         )
         Article.objects.create(
-            title="未来", status=Article.Status.SCHEDULED,
+            title="未来",
+            status=Article.Status.SCHEDULED,
             published_at=timezone.now() + timezone.timedelta(days=1),
             author=self.user,
         )
@@ -166,9 +169,7 @@ class FrontendViewTest(TestCase):
     """前台视图集成测试(文章列表/详情/搜索/分类/专栏/留言/评论/点赞)。"""
 
     def setUp(self):
-        self.user = get_user_model().objects.create_user(
-            username="viewer", password="test12345"
-        )
+        self.user = get_user_model().objects.create_user(username="viewer", password="test12345")
         self.category = Category.objects.create(name="前端")
         self.tag = Tag.objects.create(name="测试")
         self.column = Column.objects.create(name="专栏A")
@@ -257,16 +258,19 @@ class SitemapRssTest(TestCase):
     """Sitemap 与 RSS 输出测试。"""
 
     def setUp(self):
-        self.user = get_user_model().objects.create_user(
-            username="sitemap", password="test12345"
-        )
+        self.user = get_user_model().objects.create_user(username="sitemap", password="test12345")
         now = timezone.now()
         Article.objects.create(
-            title="可被索引的文章", author=self.user, content="# 内容",
-            status=Article.Status.PUBLISHED, published_at=now,
+            title="可被索引的文章",
+            author=self.user,
+            content="# 内容",
+            status=Article.Status.PUBLISHED,
+            published_at=now,
         )
         Article.objects.create(
-            title="草稿不索引", author=self.user, content="x",
+            title="草稿不索引",
+            author=self.user,
+            content="x",
             status=Article.Status.DRAFT,
         )
 

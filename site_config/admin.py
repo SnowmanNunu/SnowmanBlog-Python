@@ -1,4 +1,5 @@
 import json
+from itertools import chain
 
 from django.apps import apps
 from django.contrib import admin, messages
@@ -6,7 +7,6 @@ from django.core import serializers
 from django.core.cache import cache
 from django.http import HttpResponse
 from django.utils import timezone
-from itertools import chain
 
 from .models import FriendLink, Setting
 

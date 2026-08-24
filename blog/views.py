@@ -138,4 +138,3 @@ def search_articles(request):
         "blog/search.html",
         {"query": q, "page_obj": _paginate(request, results) if q else results},
     )
-

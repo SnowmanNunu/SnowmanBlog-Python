@@ -4,47 +4,78 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
-    dependencies = [
-    ]
+    dependencies = []
 
     operations = [
         migrations.CreateModel(
-            name='FriendLink',
+            name="FriendLink",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('title', models.CharField(max_length=60, verbose_name='名称')),
-                ('url', models.URLField(max_length=255, verbose_name='链接')),
-                ('logo', models.ImageField(blank=True, null=True, upload_to='friends/', verbose_name='Logo')),
-                ('description', models.CharField(blank=True, max_length=200, verbose_name='描述')),
-                ('sort_order', models.PositiveIntegerField(default=0, verbose_name='排序')),
-                ('is_active', models.BooleanField(default=True, verbose_name='是否启用')),
-                ('created_at', models.DateTimeField(auto_now_add=True, verbose_name='创建时间')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                    ),
+                ),
+                ("title", models.CharField(max_length=60, verbose_name="名称")),
+                ("url", models.URLField(max_length=255, verbose_name="链接")),
+                (
+                    "logo",
+                    models.ImageField(
+                        blank=True, null=True, upload_to="friends/", verbose_name="Logo"
+                    ),
+                ),
+                ("description", models.CharField(blank=True, max_length=200, verbose_name="描述")),
+                ("sort_order", models.PositiveIntegerField(default=0, verbose_name="排序")),
+                ("is_active", models.BooleanField(default=True, verbose_name="是否启用")),
+                ("created_at", models.DateTimeField(auto_now_add=True, verbose_name="创建时间")),
             ],
             options={
-                'verbose_name': '友链',
-                'verbose_name_plural': '友链',
-                'ordering': ['sort_order', 'id'],
+                "verbose_name": "友链",
+                "verbose_name_plural": "友链",
+                "ordering": ["sort_order", "id"],
             },
         ),
         migrations.CreateModel(
-            name='Setting',
+            name="Setting",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('key', models.CharField(max_length=100, unique=True, verbose_name='键')),
-                ('value', models.TextField(blank=True, verbose_name='值')),
-                ('value_type', models.CharField(choices=[('str', '字符串'), ('int', '整数'), ('bool', '布尔'), ('json', 'JSON')], default='str', max_length=20, verbose_name='值类型')),
-                ('group', models.CharField(blank=True, default='site', max_length=50, verbose_name='分组')),
-                ('is_public', models.BooleanField(default=False, verbose_name='前台可见')),
-                ('created_at', models.DateTimeField(auto_now_add=True, verbose_name='创建时间')),
-                ('updated_at', models.DateTimeField(auto_now=True, verbose_name='更新时间')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                    ),
+                ),
+                ("key", models.CharField(max_length=100, unique=True, verbose_name="键")),
+                ("value", models.TextField(blank=True, verbose_name="值")),
+                (
+                    "value_type",
+                    models.CharField(
+                        choices=[
+                            ("str", "字符串"),
+                            ("int", "整数"),
+                            ("bool", "布尔"),
+                            ("json", "JSON"),
+                        ],
+                        default="str",
+                        max_length=20,
+                        verbose_name="值类型",
+                    ),
+                ),
+                (
+                    "group",
+                    models.CharField(
+                        blank=True, default="site", max_length=50, verbose_name="分组"
+                    ),
+                ),
+                ("is_public", models.BooleanField(default=False, verbose_name="前台可见")),
+                ("created_at", models.DateTimeField(auto_now_add=True, verbose_name="创建时间")),
+                ("updated_at", models.DateTimeField(auto_now=True, verbose_name="更新时间")),
             ],
             options={
-                'verbose_name': '站点设置',
-                'verbose_name_plural': '站点设置',
-                'ordering': ['group', 'key'],
+                "verbose_name": "站点设置",
+                "verbose_name_plural": "站点设置",
+                "ordering": ["group", "key"],
             },
         ),
     ]

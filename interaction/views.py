@@ -1,12 +1,11 @@
 import hashlib
 
 from django.contrib import messages
-from django.core.cache import cache
 from django.db import IntegrityError
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
-from django.views.decorators.http import require_GET, require_http_methods, require_POST
+from django.views.decorators.http import require_http_methods, require_POST
 
 from blog.models import Article
 
@@ -55,7 +54,7 @@ def submit_comment(request, slug):
             reply_to = parent.nickname
 
     if content:
-        comment = Comment.objects.create(
+        Comment.objects.create(
             article=article,
             parent=parent,
             user=request.user if request.user.is_authenticated else None,
@@ -84,9 +83,7 @@ def toggle_like(request, slug):
     user = request.user if request.user.is_authenticated else None
 
     try:
-        like = ArticleLike.objects.create(
-            article=article, user=user, visitor_key=visitor_key
-        )
+        ArticleLike.objects.create(article=article, user=user, visitor_key=visitor_key)
         liked = True
     except IntegrityError:
         # 已点赞 → 取消:删除用户点赞或访客点赞
@@ -104,4 +101,3 @@ def toggle_like(request, slug):
     if request.headers.get("x-requested-with") == "XMLHttpRequest":
         return JsonResponse({"liked": liked, "count": new_count})
     return redirect(reverse("blog:article_detail", kwargs={"slug": article.slug}))
-

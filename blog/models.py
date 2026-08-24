@@ -3,7 +3,7 @@ from django.db import models
 from django.urls import reverse
 from django.utils.text import slugify
 
-from core.soft_delete import SoftDeleteManager, SoftDeletableModel
+from core.soft_delete import SoftDeletableModel, SoftDeleteManager
 
 
 class PublishedArticleManager(SoftDeleteManager):
@@ -128,13 +128,9 @@ class Article(SoftDeletableModel):
         null=True,
         blank=True,
     )
-    tags = models.ManyToManyField(
-        Tag, verbose_name="标签", blank=True, related_name="articles"
-    )
+    tags = models.ManyToManyField(Tag, verbose_name="标签", blank=True, related_name="articles")
 
-    status = models.CharField(
-        "状态", max_length=20, choices=Status.choices, default=Status.DRAFT
-    )
+    status = models.CharField("状态", max_length=20, choices=Status.choices, default=Status.DRAFT)
     is_top = models.BooleanField("置顶", default=False)
     published_at = models.DateTimeField("发布时间", null=True, blank=True, db_index=True)
 

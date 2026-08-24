@@ -38,9 +38,7 @@ class Comment(models.Model):
     content = models.TextField("内容")
     is_admin = models.BooleanField("是否博主", default=False)
     notify = models.BooleanField("收到回复邮件通知", default=False)
-    status = models.CharField(
-        "状态", max_length=20, choices=Status.choices, default=Status.PENDING
-    )
+    status = models.CharField("状态", max_length=20, choices=Status.choices, default=Status.PENDING)
 
     # 冗余:记录回复目标昵称,便于展示「回复 @xxx」
     reply_to_nick = models.CharField("回复对象昵称", max_length=50, blank=True)
@@ -105,9 +103,7 @@ class ArticleLike(models.Model):
         ordering = ["-created_at"]
         constraints = [
             # 同一用户对同一文章只能点赞一次(user 为 NULL 时 SQLite/MySQL 均允许多个)
-            models.UniqueConstraint(
-                fields=["article", "user"], name="uniq_article_user_like"
-            ),
+            models.UniqueConstraint(fields=["article", "user"], name="uniq_article_user_like"),
             # 同一访客标识对同一文章只能点赞一次
             models.UniqueConstraint(
                 fields=["article", "visitor_key"], name="uniq_article_visitor_like"

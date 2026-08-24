@@ -26,9 +26,7 @@ class SoftDeleteManager(models.Manager):
     """默认管理器:仅返回未删除记录。"""
 
     def get_queryset(self):
-        return SoftDeleteQuerySet(self.model, using=self._db).exclude(
-            deleted_at__isnull=False
-        )
+        return SoftDeleteQuerySet(self.model, using=self._db).exclude(deleted_at__isnull=False)
 
     def all_with_deleted(self):
         """包含已删除记录(实际已删除形态)。"""

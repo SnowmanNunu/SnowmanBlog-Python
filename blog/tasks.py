@@ -12,9 +12,7 @@ def publish_scheduled_articles():
     由 Celery Beat 定期(如每分钟)触发。
     """
     now = timezone.now()
-    due = Article.objects.filter(
-        status=Article.Status.SCHEDULED, published_at__lte=now
-    )
+    due = Article.objects.filter(status=Article.Status.SCHEDULED, published_at__lte=now)
     count = due.count()
     if count:
         due.update(status=Article.Status.PUBLISHED)

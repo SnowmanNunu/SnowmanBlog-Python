@@ -6,7 +6,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
     dependencies = [
@@ -15,82 +14,212 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name='Category',
+            name="Category",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('deleted_at', models.DateTimeField(blank=True, editable=False, null=True, verbose_name='删除时间')),
-                ('name', models.CharField(max_length=50, verbose_name='分类名称')),
-                ('slug', models.SlugField(blank=True, max_length=60, unique=True, verbose_name='别名')),
-                ('description', models.CharField(blank=True, max_length=200, verbose_name='描述')),
-                ('sort_order', models.PositiveIntegerField(default=0, verbose_name='排序')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                    ),
+                ),
+                (
+                    "deleted_at",
+                    models.DateTimeField(
+                        blank=True, editable=False, null=True, verbose_name="删除时间"
+                    ),
+                ),
+                ("name", models.CharField(max_length=50, verbose_name="分类名称")),
+                (
+                    "slug",
+                    models.SlugField(blank=True, max_length=60, unique=True, verbose_name="别名"),
+                ),
+                ("description", models.CharField(blank=True, max_length=200, verbose_name="描述")),
+                ("sort_order", models.PositiveIntegerField(default=0, verbose_name="排序")),
             ],
             options={
-                'verbose_name': '分类',
-                'verbose_name_plural': '分类',
-                'ordering': ['sort_order', 'id'],
+                "verbose_name": "分类",
+                "verbose_name_plural": "分类",
+                "ordering": ["sort_order", "id"],
             },
         ),
         migrations.CreateModel(
-            name='Column',
+            name="Column",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('deleted_at', models.DateTimeField(blank=True, editable=False, null=True, verbose_name='删除时间')),
-                ('name', models.CharField(max_length=60, verbose_name='专栏名称')),
-                ('slug', models.SlugField(blank=True, max_length=70, unique=True, verbose_name='别名')),
-                ('description', models.TextField(blank=True, verbose_name='简介')),
-                ('cover', models.ImageField(blank=True, null=True, upload_to='columns/', verbose_name='封面图')),
-                ('sort_order', models.PositiveIntegerField(default=0, verbose_name='排序')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                    ),
+                ),
+                (
+                    "deleted_at",
+                    models.DateTimeField(
+                        blank=True, editable=False, null=True, verbose_name="删除时间"
+                    ),
+                ),
+                ("name", models.CharField(max_length=60, verbose_name="专栏名称")),
+                (
+                    "slug",
+                    models.SlugField(blank=True, max_length=70, unique=True, verbose_name="别名"),
+                ),
+                ("description", models.TextField(blank=True, verbose_name="简介")),
+                (
+                    "cover",
+                    models.ImageField(
+                        blank=True, null=True, upload_to="columns/", verbose_name="封面图"
+                    ),
+                ),
+                ("sort_order", models.PositiveIntegerField(default=0, verbose_name="排序")),
             ],
             options={
-                'verbose_name': '专栏',
-                'verbose_name_plural': '专栏',
-                'ordering': ['sort_order', 'id'],
+                "verbose_name": "专栏",
+                "verbose_name_plural": "专栏",
+                "ordering": ["sort_order", "id"],
             },
         ),
         migrations.CreateModel(
-            name='Tag',
+            name="Tag",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('deleted_at', models.DateTimeField(blank=True, editable=False, null=True, verbose_name='删除时间')),
-                ('name', models.CharField(max_length=30, verbose_name='标签名称')),
-                ('slug', models.SlugField(blank=True, max_length=40, unique=True, verbose_name='别名')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                    ),
+                ),
+                (
+                    "deleted_at",
+                    models.DateTimeField(
+                        blank=True, editable=False, null=True, verbose_name="删除时间"
+                    ),
+                ),
+                ("name", models.CharField(max_length=30, verbose_name="标签名称")),
+                (
+                    "slug",
+                    models.SlugField(blank=True, max_length=40, unique=True, verbose_name="别名"),
+                ),
             ],
             options={
-                'verbose_name': '标签',
-                'verbose_name_plural': '标签',
-                'ordering': ['id'],
+                "verbose_name": "标签",
+                "verbose_name_plural": "标签",
+                "ordering": ["id"],
             },
         ),
         migrations.CreateModel(
-            name='Article',
+            name="Article",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('deleted_at', models.DateTimeField(blank=True, editable=False, null=True, verbose_name='删除时间')),
-                ('title', models.CharField(max_length=200, verbose_name='标题')),
-                ('slug', models.SlugField(blank=True, max_length=220, unique=True, verbose_name='别名')),
-                ('summary', models.TextField(blank=True, verbose_name='摘要')),
-                ('content', models.TextField(verbose_name='正文(Markdown)')),
-                ('cover_image', models.ImageField(blank=True, null=True, upload_to='articles/', verbose_name='封面图')),
-                ('status', models.CharField(choices=[('draft', '草稿'), ('published', '已发布'), ('scheduled', '定时发布'), ('trashed', '回收站')], default='draft', max_length=20, verbose_name='状态')),
-                ('is_top', models.BooleanField(default=False, verbose_name='置顶')),
-                ('published_at', models.DateTimeField(blank=True, db_index=True, null=True, verbose_name='发布时间')),
-                ('view_count', models.PositiveIntegerField(default=0, verbose_name='浏览量')),
-                ('like_count', models.PositiveIntegerField(default=0, editable=False, verbose_name='点赞数')),
-                ('comment_count', models.PositiveIntegerField(default=0, editable=False, verbose_name='评论数')),
-                ('seo_title', models.CharField(blank=True, max_length=200, verbose_name='SEO 标题')),
-                ('seo_keywords', models.CharField(blank=True, max_length=200, verbose_name='SEO 关键词')),
-                ('seo_description', models.CharField(blank=True, max_length=255, verbose_name='SEO 描述')),
-                ('created_at', models.DateTimeField(auto_now_add=True, verbose_name='创建时间')),
-                ('updated_at', models.DateTimeField(auto_now=True, verbose_name='更新时间')),
-                ('author', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='articles', to=settings.AUTH_USER_MODEL, verbose_name='作者')),
-                ('category', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='articles', to='blog.category', verbose_name='分类')),
-                ('column', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='articles', to='blog.column', verbose_name='专栏')),
-                ('tags', models.ManyToManyField(blank=True, related_name='articles', to='blog.tag', verbose_name='标签')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                    ),
+                ),
+                (
+                    "deleted_at",
+                    models.DateTimeField(
+                        blank=True, editable=False, null=True, verbose_name="删除时间"
+                    ),
+                ),
+                ("title", models.CharField(max_length=200, verbose_name="标题")),
+                (
+                    "slug",
+                    models.SlugField(blank=True, max_length=220, unique=True, verbose_name="别名"),
+                ),
+                ("summary", models.TextField(blank=True, verbose_name="摘要")),
+                ("content", models.TextField(verbose_name="正文(Markdown)")),
+                (
+                    "cover_image",
+                    models.ImageField(
+                        blank=True, null=True, upload_to="articles/", verbose_name="封面图"
+                    ),
+                ),
+                (
+                    "status",
+                    models.CharField(
+                        choices=[
+                            ("draft", "草稿"),
+                            ("published", "已发布"),
+                            ("scheduled", "定时发布"),
+                            ("trashed", "回收站"),
+                        ],
+                        default="draft",
+                        max_length=20,
+                        verbose_name="状态",
+                    ),
+                ),
+                ("is_top", models.BooleanField(default=False, verbose_name="置顶")),
+                (
+                    "published_at",
+                    models.DateTimeField(
+                        blank=True, db_index=True, null=True, verbose_name="发布时间"
+                    ),
+                ),
+                ("view_count", models.PositiveIntegerField(default=0, verbose_name="浏览量")),
+                (
+                    "like_count",
+                    models.PositiveIntegerField(default=0, editable=False, verbose_name="点赞数"),
+                ),
+                (
+                    "comment_count",
+                    models.PositiveIntegerField(default=0, editable=False, verbose_name="评论数"),
+                ),
+                (
+                    "seo_title",
+                    models.CharField(blank=True, max_length=200, verbose_name="SEO 标题"),
+                ),
+                (
+                    "seo_keywords",
+                    models.CharField(blank=True, max_length=200, verbose_name="SEO 关键词"),
+                ),
+                (
+                    "seo_description",
+                    models.CharField(blank=True, max_length=255, verbose_name="SEO 描述"),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True, verbose_name="创建时间")),
+                ("updated_at", models.DateTimeField(auto_now=True, verbose_name="更新时间")),
+                (
+                    "author",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        related_name="articles",
+                        to=settings.AUTH_USER_MODEL,
+                        verbose_name="作者",
+                    ),
+                ),
+                (
+                    "category",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        related_name="articles",
+                        to="blog.category",
+                        verbose_name="分类",
+                    ),
+                ),
+                (
+                    "column",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        related_name="articles",
+                        to="blog.column",
+                        verbose_name="专栏",
+                    ),
+                ),
+                (
+                    "tags",
+                    models.ManyToManyField(
+                        blank=True, related_name="articles", to="blog.tag", verbose_name="标签"
+                    ),
+                ),
             ],
             options={
-                'verbose_name': '文章',
-                'verbose_name_plural': '文章',
-                'ordering': ['-is_top', '-published_at', '-created_at'],
+                "verbose_name": "文章",
+                "verbose_name_plural": "文章",
+                "ordering": ["-is_top", "-published_at", "-created_at"],
             },
         ),
     ]

@@ -1,0 +1,26 @@
+# Ruff 配置(替代 Black/isort/flake8)
+target-version = "py312"
+line-length = 100
+
+[lint]
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # pyflakes
+    "I",   # isort
+    "B",   # flake8-bugbear
+    "UP",  # pyupgrade
+]
+ignore = [
+    "E501", # 行长由 formatter 管理
+]
+
+[lint.isort]
+known-first-party = ["blog", "core", "interaction", "site_config", "config"]
+
+[format]
+quote-style = "double"
+
+[lint.per-file-ignores]
+# Django 管理脚本需先 django.setup() 再导入模型,E402 属合理例外
+"seed_data.py" = ["E402"]
