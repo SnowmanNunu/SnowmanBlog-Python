@@ -1,7 +1,7 @@
 import hashlib
 
 from django.contrib import messages
-from django.db import IntegrityError
+from django.db import IntegrityError, transaction
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
@@ -83,7 +83,8 @@ def toggle_like(request, slug):
     user = request.user if request.user.is_authenticated else None
 
     try:
-        ArticleLike.objects.create(article=article, user=user, visitor_key=visitor_key)
+        with transaction.atomic():
+            ArticleLike.objects.create(article=article, user=user, visitor_key=visitor_key)
         liked = True
     except IntegrityError:
         # 已点赞 → 取消:删除用户点赞或访客点赞

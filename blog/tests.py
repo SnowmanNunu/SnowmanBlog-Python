@@ -85,11 +85,11 @@ class ArticleModelTest(TestCase):
 
     def test_article_like_unique_constraint(self):
         """同一访客对同一文章不能重复点赞。"""
-        from django.db import IntegrityError
+        from django.db import IntegrityError, transaction
 
         article = Article.objects.create(title="点赞测试", author=self.user, content="x")
         ArticleLike.objects.create(article=article, visitor_key="visitor-1")
-        with self.assertRaises(IntegrityError):
+        with self.assertRaises(IntegrityError), transaction.atomic():
             ArticleLike.objects.create(article=article, visitor_key="visitor-1")
 
     def test_guestbook_creation(self):
