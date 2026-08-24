@@ -105,10 +105,10 @@
 - RSS:`django.contrib.syndication`
 - 暗黑模式、响应式布局(Tailwind + Alpine.js)
 
-### 阶段六:测试与部署(3-4 天)
-- Pytest / Django TestCase 覆盖核心模型与视图
-- Gunicorn + Nginx,Docker Compose 编排上线
-- CI:GitHub Actions 跑测试 + Ruff/Black 代码风格检查
+### 阶段六:测试与部署(3-4 天) ✅ 已完成
+- Pytest / Django TestCase 覆盖核心模型与视图(40 项测试全通过)
+- Gunicorn + Nginx 编排上线(systemd 守护 + 宝塔 Nginx 反代,一键部署脚本 scripts/deploy.sh)
+- CI:GitHub Actions 跑测试 + Ruff 代码风格检查(.github/workflows/ci.yml)
 
 ---
 
@@ -172,7 +172,7 @@ SnowmanBlog-Python/
 
 ## 六、开发进度总览(实时更新)
 
-> 最近更新:2026-08-21(阶段一 ~ 阶段四完成,阶段五进行中)
+> 最近更新:2026-08-24(**阶段零 ~ 阶段六全部完成**,项目正式上线)
 
 | 阶段 | 内容 | 状态 | 备注 |
 |---|---|---|---|
@@ -181,8 +181,8 @@ SnowmanBlog-Python/
 | 阶段二 | 数据模型与迁移 | ✅ 完成 | 9 模型 + 软删除 + 迁移 + 8 测试 |
 | 阶段三 | 后台管理 | ✅ 完成 | Admin CRUD + 定时发布 + 缓存/备份(存储设置页待补) |
 | 阶段四 | 前台功能开发 | ✅ 完成 | 列表/详情/搜索/专栏/留言/评论/点赞 + 中文 slug + Markdown |
-| 阶段五 | 辅助功能 | 🔄 进行中 | Sitemap / RSS / 暗黑模式(当前所处阶段) |
-| 阶段六 | 测试与部署 | ⏳ 待开始 | Gunicorn + Nginx + CI |
+| 阶段五 | 辅助功能 | ✅ 完成 | Sitemap / RSS / 暗黑模式 |
+| 阶段六 | 测试与部署 | ✅ 完成 | 40 项测试 + GitHub Actions CI + systemd 守护 + 一键部署 |
 
 ### 各项功能完成情况
 - **后台管理**:文章(含定时发布/回收站)、专栏、分类、标签、留言、评论(嵌套/审核)、友链、站点设置、缓存管理、备份管理 —— ✅
