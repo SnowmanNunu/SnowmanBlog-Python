@@ -84,11 +84,44 @@ docker compose up -d
 .venv/bin/python manage.py test blog -v2
 ```
 
+## 🚀 生产部署(已上线示例)
+
+本项目已部署到阿里云服务器,可通过 **http://pyblog.snowmannunu.top** 访问。
+
+> 架构:**Gunicorn**(Django,`127.0.0.1:8000`)+ **Nginx 反代**(宝塔托管域名)+ **Celery worker/beat** + **Redis**,数据库用 **SQLite**。
+
+### 部署要点
+1. **服务器系统 Python 是 3.6** → 源码编译安装 Python 3.12 到 `/usr/local/python312`,再 `python3 -m venv .venv`。
+2. **系统 SQLite 3.26 过旧**(Django 5 需 3.31+) → 安装 `pysqlite3-binary`,并放置**部署专用** `sitecustomize.py` 将标准库 `sqlite3` 替换为新版(仅服务器需要,不进 git):
+   ```python
+   import sys
+   try:
+       import pysqlite3 as _s
+   except ImportError:
+       pass
+   else:
+       sys.modules["sqlite3"] = _s
+   ```
+   运行/启动时必须 `export PYTHONPATH=/www/wwwroot/xxx`(使 sitecustomize 被加载)。
+3. **MySQL 版本注意**:Django 5.x 要求 **MySQL 8.0+**,但本服务器是 MySQL 5.7,故生产用 SQLite。如需用 MySQL,请先升级到 8+ 再设 `DB_ENGINE=mysql`。
+4. 生产环境变量(Nginx/Gunicorn 用)写在服务器 `.env.deploy`(`.bash` 风格,`source` 后再启动 Gunicorn)。
+
+### 启动命令(服务器,需先 `source .env.deploy`)
+```bash
+cd /www/wwwroot/<你的目录>
+export PYTHONPATH=$PWD
+# Gunicorn
+nohup .venv/bin/gunicorn --bind 127.0.0.1:8000 --workers 3 --timeout 60 config.wsgi:application &
+# Celery
+nohup .venv/bin/celery -A config worker -l info &
+nohup .venv/bin/celery -A config beat -l info &
+```
+
 ## 📊 开发进度
 
 截至阶段五已全部完成(阶段零 → 五 ✅),阶段六(部署 CI)待推进。详见 [`SnowmanBlog-Python开发计划.md`](SnowmanBlog-Python开发计划.md)。
 
 ## ⚠️ 说明
 
-- 开发默认 **SQLite**;生产用 MySQL 需设置 `DB_ENGINE=mysql` 及相关环境变量(参考 `.env.example`)。
+- 开发默认 **SQLite**;生产用 MySQL 需设置 `DB_ENGINE=mysql`(服务器 MySQL 5.7 需先升级到 8.0+ 并更新相关环境变量)。
 - 存储设置页、搜索快捷键、异步邮件通知为待增强项。
