@@ -7,7 +7,7 @@ class LatestArticleFeed(Feed):
     """最新文章 RSS Feed。"""
 
     title = "SnowmanBlog 最新文章"
-    link = "/blog/"
+    link = "/"
     description = "SnowmanBlog 最新发布的文章"
 
     def items(self):

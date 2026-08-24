@@ -32,7 +32,6 @@ sitemaps = {
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-    path("blog/", include("blog.urls")),
     path("rss/", LatestArticleFeed(), name="rss_feed"),
     path("rss.xml", LatestArticleFeed(), name="rss_feed_xml"),
     path(
@@ -41,6 +40,10 @@ urlpatterns = [
         {"sitemaps": sitemaps},
         name="django.contrib.sitemaps.views.sitemap",
     ),
+    # 具体前缀优先:留言板 / 健康检查
     path("", include("interaction.urls")),
     path("", include("core.urls")),
+    # 前台整体挂在根路径(不再使用 /blog/ 前缀):
+    #  / → 文章列表, /<slug> → 文章详情, /columns → 专栏, /search → 搜索
+    path("", include("blog.urls")),
 ]

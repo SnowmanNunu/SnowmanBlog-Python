@@ -185,7 +185,7 @@ class FrontendViewTest(TestCase):
         self.article.tags.add(self.tag)
 
     def test_article_list_200(self):
-        resp = self.client.get("/blog/")
+        resp = self.client.get("/")
         self.assertEqual(resp.status_code, 200)
         self.assertContains(resp, "前台测试文章")
 
@@ -202,14 +202,14 @@ class FrontendViewTest(TestCase):
         self.assertEqual(tag_resp.status_code, 200)
 
     def test_column_list_and_detail(self):
-        resp = self.client.get("/blog/columns/")
+        resp = self.client.get("/columns/")
         self.assertEqual(resp.status_code, 200)
         self.assertContains(resp, "专栏A")
         col_resp = self.client.get(reverse("blog:column_detail", args=[self.column.slug]))
         self.assertEqual(col_resp.status_code, 200)
 
     def test_search_finds_article(self):
-        resp = self.client.get("/blog/search/", {"q": "前台"})
+        resp = self.client.get("/search/", {"q": "前台"})
         self.assertEqual(resp.status_code, 200)
         self.assertContains(resp, "前台测试文章")
 
@@ -249,7 +249,7 @@ class FrontendViewTest(TestCase):
         Article.objects.create(
             title="草稿不显示", author=self.user, content="x", status=Article.Status.DRAFT
         )
-        resp = self.client.get("/blog/")
+        resp = self.client.get("/")
         self.assertNotContains(resp, "草稿不显示")
 
 
@@ -291,7 +291,7 @@ class SitemapRssTest(TestCase):
     def test_base_template_has_theme_toggle(self):
         """暗黑模式切换按钮与主题脚本存在。"""
         Article.objects.filter(title="可被索引的文章").update(published_at=timezone.now())
-        resp = self.client.get("/blog/")
+        resp = self.client.get("/")
         self.assertEqual(resp.status_code, 200)
         self.assertContains(resp, "theme-toggle")
         self.assertContains(resp, "data-theme")
