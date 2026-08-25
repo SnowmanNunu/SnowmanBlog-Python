@@ -1,13 +1,27 @@
 # SnowmanBlog (Python/Django)
 
+<p align="center">
+  <img src="https://shields.io/badge/Python-3.12-3776AB?logo=python&logoColor=fff" alt="Python">
+  <img src="https://shields.io/badge/Django-5.2-092E20?logo=django&logoColor=fff" alt="Django">
+  <img src="https://shields.io/badge/license-MIT-yellow" alt="License">
+  <img src="https://img.shields.io/github/actions/workflow/status/SnowmanNunu/SnowmanBlog-Python/ci.yml?branch=main&label=CI" alt="CI">
+  <img src="https://shields.io/badge/test-40%20passed-21A366" alt="Tests(40)">
+</p>
+
 用 Python 复刻 [SnowmanNunu/SnowmanBlog](https://github.com/SnowmanNunu/SnowmanBlog)(Laravel 12 + Filament v3)的个人博客系统,技术栈为 **Django 5**。
+
+## 📸 预览
+
+<img src="docs/screenshots/home.png" alt="SnowmanBlog 首页预览" width="800">
+
+> 截图待补充——请将首页截图保存为 `docs/screenshots/home.png`。
 
 ## ✨ 功能特性
 
 | 模块 | 功能 |
 |---|---|
 | 📝 文章 | 列表分页、详情页(Markdown 渲染)、上一篇/下一篇、相关推荐、分类/标签/专栏体系、SEO Meta |
-| 🔍 搜索 | 全站标题搜索(`/blog/search/?q=`) |
+| 🔍 搜索 | 全站标题搜索(`/search/?q=`) |
 | 💬 互动 | 留言板、嵌套评论(审核制)、文章点赞(防刷) |
 | ⚙️ 后台 | Django Admin 全模型管理、回收站/软删除、定时发布(Celery Beat)、Cache 清理、数据备份导出 |
 | 🌐 SEO | Sitemap(`/sitemap.xml`)、RSS(`/rss/`) |
