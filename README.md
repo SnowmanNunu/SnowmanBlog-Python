@@ -14,8 +14,6 @@
 
 <img src="docs/screenshots/home.png" alt="SnowmanBlog 首页预览" width="800">
 
-> 截图待补充——请将首页截图保存为 `docs/screenshots/home.png`。
-
 ## ✨ 功能特性
 
 | 模块 | 功能 |
@@ -73,9 +71,11 @@ DJANGO_SUPERUSER_PASSWORD=你的密码 .venv/bin/python manage.py createsuperuse
 ```
 
 访问:
-- 前台首页: http://127.0.0.1:8000/blog/
-- 后台管理: http://127.0.0.1:8000/admin/
+- 前台首页(文章列表): http://127.0.0.1:8000/
+- 文章详情: http://127.0.0.1:8000/<slug>/
+- 专栏: http://127.0.0.1:8000/columns/
 - 留言板: http://127.0.0.1:8000/guestbook/
+- 后台管理: http://127.0.0.1:8000/admin/
 
 > 定时发布 / 异步邮件需要同时运行 Celery worker 与 beat:
 > ```bash
@@ -132,7 +132,7 @@ journalctl -u snowblog-gunicorn -n 50     # 查看日志
 
 ## 📊 开发进度
 
-截至阶段五已全部完成(阶段零 → 五 ✅),阶段六(部署 CI)待推进。详见 [`SnowmanBlog-Python开发计划.md`](SnowmanBlog-Python开发计划.md)。
+开发计划的 **阶段零 → 六已全部完成**(脚手架、项目初始化、数据模型、后台管理、前台功能、辅助功能、测试与部署),项目已正式上线。详见 [`SnowmanBlog-Python开发计划.md`](SnowmanBlog-Python开发计划.md)。
 
 ## ⚠️ 说明
 
