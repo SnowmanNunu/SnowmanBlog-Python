@@ -54,7 +54,7 @@ def submit_comment(request, slug):
             reply_to = parent.nickname
 
     if content:
-        Comment.objects.create(
+        comment = Comment.objects.create(
             article=article,
             parent=parent,
             user=request.user if request.user.is_authenticated else None,
@@ -66,6 +66,13 @@ def submit_comment(request, slug):
         # 更新文章评论计数
         total = Comment.objects.filter(article=article).count()
         Article.objects.filter(pk=article.pk).update(comment_count=total)
+        # 异步发送回复邮件通知(无 Celery 运行时可忽略)
+        try:
+            from blog.tasks import send_comment_notification
+
+            send_comment_notification.delay(comment.pk)
+        except Exception:
+            pass
         messages.success(request, "评论已提交,审核通过后将显示。")
     else:
         messages.error(request, "评论内容不能为空。")

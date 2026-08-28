@@ -1,6 +1,6 @@
 import mistune
 from django.core.paginator import Paginator
-from django.db.models import Q
+from django.db.models import F, Q
 from django.shortcuts import get_object_or_404, render
 from django.views.decorators.http import require_GET
 
@@ -49,6 +49,10 @@ def article_list(request):
 def article_detail(request, slug):
     """文章详情:正文渲染、上一篇/下一篇、相关推荐、评论。"""
     article = get_object_or_404(_published_articles(), slug=slug)
+
+    # 浏览量原子自增(防止并发下计数丢失)
+    Article.objects.filter(pk=article.pk).update(view_count=F("view_count") + 1)
+    article.refresh_from_db(fields=["view_count"])
 
     # 上一篇 / 下一篇(按发布时间排序,UTF slug 直接对比)
     prev_article = (
@@ -132,9 +136,14 @@ def tag_detail(request, slug):
 def search_articles(request):
     """全站搜索(LIKE 匹配标题/内容/摘要)。"""
     q = request.GET.get("q", "").strip()
-    results = _published_articles().filter(Q(title__icontains=q)) if q else []
+    if q:
+        results = _published_articles().filter(
+            Q(title__icontains=q) | Q(summary__icontains=q) | Q(content__icontains=q)
+        )
+    else:
+        results = _published_articles().none()
     return render(
         request,
         "blog/search.html",
-        {"query": q, "page_obj": _paginate(request, results) if q else results},
+        {"query": q, "page_obj": _paginate(request, results)},
     )

@@ -22,3 +22,6 @@ staticfiles/
 
 # Logs
 *.log
+
+# Redis 持久化(本地测试生成)
+dump.rdb

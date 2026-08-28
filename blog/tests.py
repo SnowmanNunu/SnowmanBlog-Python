@@ -253,6 +253,22 @@ class FrontendViewTest(TestCase):
         resp = self.client.get("/")
         self.assertNotContains(resp, "草稿不显示")
 
+    def test_view_count_increments_on_detail(self):
+        """访问详情页时浏览量原子自增。"""
+        before = Article.objects.get(pk=self.article.pk).view_count
+        self.client.get(self.article.get_absolute_url())
+        after = Article.objects.get(pk=self.article.pk).view_count
+        self.assertEqual(after, before + 1)
+
+    def test_search_matches_summary_and_content(self):
+        """搜索应在标题/摘要/内容中都能命中。"""
+        # 摘要命中
+        r1 = self.client.get("/search/", {"q": "摘要"})
+        self.assertContains(r1, "前台测试文章")
+        # 正文命中
+        r2 = self.client.get("/search/", {"q": "正文内容"})
+        self.assertContains(r2, "前台测试文章")
+
 
 class SitemapRssTest(TestCase):
     """Sitemap 与 RSS 输出测试。"""
@@ -299,3 +315,53 @@ class SitemapRssTest(TestCase):
         self.assertEqual(resp.status_code, 200)
         self.assertContains(resp, "theme-toggle")
         self.assertContains(resp, "data-theme")
+
+
+class CommentNotificationTaskTest(TestCase):
+    """评论邮件通知 task 测试(console backend 不真实发信)。"""
+
+    def setUp(self):
+        self.user = get_user_model().objects.create_user(
+            username="notify_sender", password="test12345", email="sender@test.com"
+        )
+        self.target_user = get_user_model().objects.create_user(
+            username="notify_target", password="test12345", email="target@test.com"
+        )
+        self.article = Article.objects.create(
+            title="通知测试文章",
+            author=self.user,
+            content="x",
+            status=Article.Status.PUBLISHED,
+            published_at=timezone.now(),
+        )
+        from interaction.models import Comment
+
+        self.root = Comment.objects.create(
+            article=self.article,
+            user=self.target_user,
+            nickname="目标用户",
+            content="顶层评论",
+            status=Comment.Status.APPROVED,
+        )
+
+    def test_task_sends_to_parent_user_email(self):
+        """回复时邮件发给父评论用户邮箱。"""
+        from blog.tasks import send_comment_notification
+        from interaction.models import Comment
+
+        reply = Comment.objects.create(
+            article=self.article,
+            parent=self.root,
+            user=self.user,
+            nickname="回复者",
+            content="回复你啦",
+            status=Comment.Status.APPROVED,
+        )
+        result = send_comment_notification(reply.pk)
+        self.assertEqual(result, {"sent": 1})
+
+
+class SearchNoneQueryTest(TestCase):
+    def test_empty_query_returns_empty_page(self):
+        resp = self.client.get("/search/", {"q": ""})
+        self.assertEqual(resp.status_code, 200)
