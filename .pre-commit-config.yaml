@@ -1,0 +1,9 @@
+# pre-commit 配置:提交前自动执行代码规范检查
+# 安装: pre-commit install
+repos:
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.16.4
+    hooks:
+      - id: ruff
+        args: [--fix, --exit-non-zero-on-fix]
+      - id: ruff-format
