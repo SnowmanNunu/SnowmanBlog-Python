@@ -4,21 +4,21 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{% block title %}SnowmanBlog{% endblock %}</title>
-    <meta name="description" content="{% block meta_description %}{% endblock %}">
+    <title>{% block title %}{{ site_title|default:"SnowmanBlog" }}{% endblock %}</title>
+    <meta name="description" content="{% block meta_description %}{{ site_description|default:'' }}{% endblock %}">
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
-    <link rel="alternate" type="application/rss+xml" title="SnowmanBlog RSS" href="{% url 'rss_feed' %}">
+    <link rel="alternate" type="application/rss+xml" title="{{ site_title|default:'SnowmanBlog' }} RSS" href="{% url 'rss_feed' %}">
     {% block extra_head %}{% endblock %}
 </head>
 <body>
 <header class="site-header">
     <div class="container header-inner">
-        <a class="brand" href="{% url 'blog:article_list' %}">☃️ SnowmanBlog</a>
+        <a class="brand" href="{% url 'blog:article_list' %}">☃️ {{ site_title|default:"SnowmanBlog" }}</a>
         <nav class="nav">
             <a href="{% url 'blog:article_list' %}">首页</a>
             <a href="{% url 'blog:column_list' %}">专栏</a>
             <a href="{% url 'interaction:guestbook' %}">留言板</a>
-            <a href="{% url 'blog:search' %}">搜索</a>
+            <a href="{% url 'blog:search' %}">搜索<span class="kbd">/</span></a>
             <a href="{% url 'rss_feed' %}">RSS</a>
             {% if user.is_authenticated %}
                 <a href="/admin/">后台</a>
@@ -36,7 +36,7 @@
     {% block content %}{% endblock %}
 </main>
 <footer class="site-footer">
-    <div class="container">© {% now "Y" %} SnowmanBlog · Powered by Django</div>
+    <div class="container">© {% now "Y" %} {{ site_title|default:"SnowmanBlog" }} · Powered by Django</div>
 </footer>
 {% block extra_js %}{% endblock %}
 <script>
@@ -55,6 +55,17 @@
         root.setAttribute('data-theme', next);
         localStorage.setItem('snowblog-theme', next);
         btn.textContent = next === 'dark' ? '☀️' : '🌙';
+    });
+
+    // 快捷键:按 "/" 跳转到搜索页并聚焦输入框(非输入框聚焦时)
+    document.addEventListener('keydown', function (e) {
+        var tag = (e.target && e.target.tagName) || '';
+        // 在输入框/文本域/select 里不拦截
+        if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
+        if (e.key === '/') {
+            e.preventDefault();
+            window.location.href = '{% url "blog:search" %}';
+        }
     });
 })();
 </script>

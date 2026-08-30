@@ -138,3 +138,9 @@ a:hover { text-decoration: underline; }
 /* ===== 深色模式切换按钮 ===== */
 .theme-toggle { background: transparent; border: none; color: var(--header-fg); font-size: 1.2rem; cursor: pointer; margin-left: .8rem; padding: .1rem .3rem; border-radius: 6px; }
 .theme-toggle:hover { background: rgba(255,255,255,.15); }
+
+/* ===== 搜索快捷键与关键词高亮 ===== */
+.kbd { display:inline-block; margin-left:2px; font-size:.7rem; background:rgba(255,255,255,.18); border:1px solid rgba(255,255,255,.3); border-radius:3px; padding:0 4px; }
+.hint { color: var(--muted); font-size:.85rem; }
+mark { background:#fde68a; color:#78350f; border-radius:2px; padding:0 1px; }
+[data-theme="dark"] mark { background:#854d0e; color:#fef9c3; }

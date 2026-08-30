@@ -1,9 +1,10 @@
 {% extends "base.html" %}
-{% block title %}搜索 · SnowmanBlog{% endblock %}
+{% block title %}搜索 · {{ site_title|default:"SnowmanBlog" }}{% endblock %}
 {% block content %}
 <h1 class="page-title">搜索</h1>
+<p class="lead hint">提示:按 <kbd>/</kbd> 可快速唤起搜索。</p>
 <form class="search-form" action="{% url 'blog:search' %}" method="get">
-    <input type="text" name="q" value="{{ query }}" placeholder="输入关键词搜索文章...">
+    <input type="text" name="q" value="{{ query }}" placeholder="输入关键词搜索文章..." id="search-input" autofocus>
     <button type="submit">搜索</button>
 </form>
 {% if query %}
@@ -15,10 +16,40 @@
             <div class="card-body">
                 <h2 class="card-title"><a href="{% url 'blog:article_detail' article.slug %}">{{ article.title }}</a></h2>
                 <p class="card-meta">{{ article.published_at|date:"Y-m-d" }}</p>
+                {% if article.summary %}
+                    <p class="card-summary">{{ article.summary }}</p>
+                {% endif %}
             </div>
         </article>
     {% empty %}
         {% if query %}<p class="empty">未找到相关文章。</p>{% endif %}
     {% endfor %}
 </div>
+{% endblock %}
+{% block extra_js %}
+<script>
+// 关键词高亮:把标题与摘要中匹配 query 的部分包成 <mark>(仅更高亮首处,避免过度)
+(function () {
+    var q = '{{ query|escapejs }}';
+    if (!q) return;
+    function highlight(el) {
+        if (!el) return;
+        var walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT, null, false);
+        var re = new RegExp(q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g');
+        var nodes = [];
+        while (walker.nextNode()) {
+            if (walker.currentNode.nodeValue.indexOf(q) !== -1) nodes.push(walker.currentNode);
+        }
+        nodes.forEach(function (node) {
+            var span = document.createElement('span');
+            span.innerHTML = node.nodeValue.replace(re, function (m) {
+                return '<mark>' + m + '</mark>';
+            });
+            node.parentNode.replaceChild(span, node);
+        });
+    }
+    document.querySelectorAll('.card-title').forEach(highlight);
+    document.querySelectorAll('.card-summary').forEach(highlight);
+})();
+</script>
 {% endblock %}

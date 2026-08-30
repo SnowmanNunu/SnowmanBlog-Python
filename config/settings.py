@@ -71,6 +71,8 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
+                # 自定义:注入站点设置(site_title/site_description 等)
+                "site_config.context_processors.site_settings",
             ],
         },
     },
