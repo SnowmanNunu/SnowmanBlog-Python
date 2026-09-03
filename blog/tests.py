@@ -417,6 +417,44 @@ class CommentNotificationTaskTest(TestCase):
         self.assertEqual(saved.email, "visitor@example.com")
         self.assertTrue(saved.notify)
 
+    def test_admin_notify_uses_setting_email(self):
+        """设置了 admin_email 时,新评论发博主通知。"""
+        from unittest.mock import patch
+
+        from blog.tasks import notify_admin_on_new_comment
+        from interaction.models import Comment
+
+        comment = Comment.objects.create(
+            article=self.article,
+            user=self.user,
+            nickname="访客",
+            content="新评论",
+            status=Comment.Status.PENDING,
+        )
+        from site_config.models import Setting
+
+        Setting.objects.create(key="admin_email", value="owner@mail.com", value_type="str")
+        with patch("blog.tasks.send_mail") as m:
+            result = notify_admin_on_new_comment(comment.pk)
+        self.assertEqual(result, {"sent": 1})
+        self.assertEqual(m.call_args.args[3], ["owner@mail.com"])
+
+    def test_admin_notify_skips_own_comment(self):
+        """博主自己的评论不触发博主通知(未设 admin_email 时也静默)。"""
+        from blog.tasks import notify_admin_on_new_comment
+        from interaction.models import Comment
+
+        # 未设置 admin_email,应静默返回
+        c = Comment.objects.create(
+            article=self.article,
+            is_admin=True,
+            nickname="博主",
+            content="管理员评论",
+            status=Comment.Status.APPROVED,
+        )
+        result = notify_admin_on_new_comment(c.pk)
+        self.assertEqual(result, {"sent": 0})
+
 
 class SearchNoneQueryTest(TestCase):
     def test_empty_query_returns_empty_page(self):

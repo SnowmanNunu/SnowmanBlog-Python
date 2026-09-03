@@ -52,3 +52,39 @@ def send_comment_notification(comment_id):
     )
     send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, [recipient])
     return {"sent": 1}
+
+
+@shared_task(name="interaction.notify_admin_on_new_comment")
+def notify_admin_on_new_comment(comment_id):
+    """新评论时通知博主(admin_email)。仅对访客/非博主的新评论生效。"""
+    from interaction.models import Comment
+
+    try:
+        comment = Comment.objects.select_related("article").get(pk=comment_id)
+    except Comment.DoesNotExist:
+        return {"sent": 0}
+
+    # 博主自己发的评论不通知
+    if comment.is_admin or (comment.user and comment.user.is_staff):
+        return {"sent": 0}
+
+    admin_email = None
+    try:
+        from site_config.models import Setting
+
+        setting = Setting.objects.filter(key="admin_email").first()
+        if setting and setting.typed_value:
+            admin_email = str(setting.typed_value)
+    except Exception:
+        pass
+    if not admin_email:
+        return {"sent": 0}
+
+    subject = f"新评论通知 · {comment.article.title}"
+    message = (
+        f"{comment.nickname} 在[{comment.article.title}]发表了新评论:\n\n"
+        f"{comment.content}\n\n"
+        f"链接: http://pyblog.snowmannunu.top{comment.article.get_absolute_url()}"
+    )
+    send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, [admin_email])
+    return {"sent": 1}

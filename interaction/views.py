@@ -75,9 +75,10 @@ def submit_comment(request, slug):
         Article.objects.filter(pk=article.pk).update(comment_count=total)
         # 异步发送回复邮件通知(有 Celery 则异步,无则静默)
         try:
-            from blog.tasks import send_comment_notification
+            from blog.tasks import notify_admin_on_new_comment, send_comment_notification
 
             send_comment_notification.delay(comment.pk)
+            notify_admin_on_new_comment.delay(comment.pk)
         except Exception:
             pass
         messages.success(request, "评论已提交,审核通过后将显示。")

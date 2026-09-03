@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load thumbnail %}
 {% block title %}文章列表 · SnowmanBlog{% endblock %}
 {% block content %}
 <h1 class="page-title">
@@ -12,7 +13,7 @@
         {% for article in page_obj %}
             <article class="card">
                 {% if article.cover_image %}
-                    <img class="card-cover" src="{{ article.cover_image.url }}" alt="{{ article.title }}">
+                    <img class="card-cover" src="{{ article.cover_image|thumbnail:'400x260' }}" alt="{{ article.title }}">
                 {% endif %}
                 <div class="card-body">
                     <h2 class="card-title">
