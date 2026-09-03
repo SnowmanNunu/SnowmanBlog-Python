@@ -34,6 +34,7 @@ class Comment(models.Model):
     )
     nickname = models.CharField("昵称", max_length=50, blank=True)
     avatar = models.CharField("头像", max_length=255, blank=True)
+    email = models.EmailField("邮箱", max_length=255, blank=True)
 
     content = models.TextField("内容")
     is_admin = models.BooleanField("是否博主", default=False)

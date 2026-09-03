@@ -11,6 +11,7 @@ def site_settings(request):
     defaults = {
         "site_title": "SnowmanBlog",
         "site_description": "用 Django 构建的个人博客",
+        "site_logo": "",
     }
     try:
         for s in Setting.objects.filter(is_public=True):

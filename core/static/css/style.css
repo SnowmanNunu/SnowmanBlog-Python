@@ -53,6 +53,7 @@ a:hover { text-decoration: underline; }
 .site-header { background: var(--header-bg); color: var(--header-fg); }
 .header-inner { display: flex; justify-content: space-between; align-items: center; padding: .9rem 1rem; }
 .brand { color: var(--header-fg); font-weight: 700; font-size: 1.15rem; }
+.brand-logo { height: 2.2rem; width: auto; vertical-align: middle; border-radius: 4px; }
 .nav a { color: var(--header-link); margin-left: 1rem; }
 .nav a:hover { color: #fff; text-decoration: none; }
 .main { min-height: 60vh; padding: 2rem 1rem; }

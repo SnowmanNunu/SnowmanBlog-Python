@@ -23,26 +23,23 @@ def publish_scheduled_articles():
 
 @shared_task(name="interaction.send_comment_notification")
 def send_comment_notification(comment_id):
-    """评论相关的中后台邮件通知。
-
-    场景:
-    - 新增评论(回复)时,若目标评论开了邮件通知(notify=True),提醒被回复者;
-    - 没有收件人地址时静默返回。
-    """
+    """评论被回复或新评论时,通知父评论者(若父评论开启 notify)。"""
     from interaction.models import Comment
 
     try:
-        comment = Comment.objects.select_related("parent", "article").get(pk=comment_id)
+        comment = Comment.objects.select_related("parent", "parent__user", "article").get(
+            pk=comment_id
+        )
     except Comment.DoesNotExist:
         return {"sent": 0}
 
-    # 收件人:父评论用户有邮箱则发;否则发博主默认邮箱
-    recipient = None
-    if comment.parent and comment.parent.user and comment.parent.user.email:
-        recipient = comment.parent.user.email
-    elif settings.DEFAULT_FROM_EMAIL and settings.DEFAULT_FROM_EMAIL != "webmaster@localhost":
-        recipient = settings.DEFAULT_FROM_EMAIL
+    parent = comment.parent
+    # 仅当父评论存在且开启了邮件通知时才发送
+    if not parent or not parent.notify:
+        return {"sent": 0}
 
+    # 收件人:父评论的邮箱(优先)或父评论用户的账号邮箱
+    recipient = parent.email or (parent.user.email if parent.user else None)
     if not recipient:
         return {"sent": 0}
 
@@ -51,7 +48,7 @@ def send_comment_notification(comment_id):
         f"{comment.nickname} 回复了你的评论:\n\n"
         f"{comment.content}\n\n"
         f"文章: {comment.article.title}\n"
-        f"链接: {comment.article.get_absolute_url()}"
+        f"链接: http://pyblog.snowmannunu.top{comment.article.get_absolute_url()}"
     )
     send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, [recipient])
     return {"sent": 1}

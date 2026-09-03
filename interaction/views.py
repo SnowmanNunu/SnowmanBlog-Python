@@ -45,6 +45,11 @@ def submit_comment(request, slug):
     nickname = request.POST.get("nickname", "").strip() or (
         request.user.username if request.user.is_authenticated else "匿名"
     )
+    # 登录用户从账号取邮箱;匿名访客填写的邮箱
+    email = request.POST.get("email", "").strip()
+    if not email and request.user.is_authenticated and request.user.email:
+        email = request.user.email
+    notify = request.POST.get("notify") == "on"
 
     parent = None
     reply_to = ""
@@ -59,14 +64,16 @@ def submit_comment(request, slug):
             parent=parent,
             user=request.user if request.user.is_authenticated else None,
             nickname=nickname,
+            email=email,
             content=content,
             reply_to_nick=reply_to,
+            notify=notify,
             status=Comment.Status.PENDING,  # 默认待审核
         )
         # 更新文章评论计数
         total = Comment.objects.filter(article=article).count()
         Article.objects.filter(pk=article.pk).update(comment_count=total)
-        # 异步发送回复邮件通知(无 Celery 运行时可忽略)
+        # 异步发送回复邮件通知(有 Celery 则异步,无则静默)
         try:
             from blog.tasks import send_comment_notification
 

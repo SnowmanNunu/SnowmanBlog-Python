@@ -2,7 +2,7 @@
 {% block title %}搜索 · {{ site_title|default:"SnowmanBlog" }}{% endblock %}
 {% block content %}
 <h1 class="page-title">搜索</h1>
-<p class="lead hint">提示:按 <kbd>/</kbd> 可快速唤起搜索。</p>
+<p class="lead hint">提示:按 <kbd>Ctrl</kbd>+<kbd>K</kbd> 或 <kbd>/</kbd> 可快速唤起搜索。</p>
 <form class="search-form" action="{% url 'blog:search' %}" method="get">
     <input type="text" name="q" value="{{ query }}" placeholder="输入关键词搜索文章..." id="search-input" autofocus>
     <button type="submit">搜索</button>

@@ -341,11 +341,12 @@ class CommentNotificationTaskTest(TestCase):
             user=self.target_user,
             nickname="目标用户",
             content="顶层评论",
+            notify=True,  # 开启邮件通知
             status=Comment.Status.APPROVED,
         )
 
     def test_task_sends_to_parent_user_email(self):
-        """回复时邮件发给父评论用户邮箱。"""
+        """父评论开启 notify 时,回复邮件发给父评论用户账号邮箱。"""
         from blog.tasks import send_comment_notification
         from interaction.models import Comment
 
@@ -359,6 +360,62 @@ class CommentNotificationTaskTest(TestCase):
         )
         result = send_comment_notification(reply.pk)
         self.assertEqual(result, {"sent": 1})
+
+    def test_task_silent_when_parent_notify_off(self):
+        """父评论未开启 notify 时,不发邮件并返回 sent=0。"""
+        from blog.tasks import send_comment_notification
+        from interaction.models import Comment
+
+        self.root.notify = False
+        self.root.save()
+        reply = Comment.objects.create(
+            article=self.article,
+            parent=self.root,
+            user=self.user,
+            nickname="回复者",
+            content="回复你啦",
+            status=Comment.Status.APPROVED,
+        )
+        result = send_comment_notification(reply.pk)
+        self.assertEqual(result, {"sent": 0})
+
+    def test_task_prefers_parent_email_field(self):
+        """父评论填了 email 字段时优先用它(而非账号邮箱)。"""
+        from blog.tasks import send_comment_notification
+        from interaction.models import Comment
+
+        self.root.email = "custom@example.com"
+        self.root.save()
+        reply = Comment.objects.create(
+            article=self.article,
+            parent=self.root,
+            user=self.user,
+            nickname="回复者",
+            content="回复你啦",
+            status=Comment.Status.APPROVED,
+        )
+        result = send_comment_notification(reply.pk)
+        self.assertEqual(result, {"sent": 1})
+
+    def test_submit_comment_form_saves_email_and_notify(self):
+        """前台提交评论时保存 email 与 notify。"""
+        reply_data = {
+            "content": "带通知的回复",
+            "nickname": "访客甲",
+            "email": "visitor@example.com",
+            "notify": "on",
+        }
+        resp = self.client.post(
+            reverse("interaction:submit_comment", args=[self.article.slug]),
+            {**reply_data, "parent_id": self.root.pk},
+            follow=True,
+        )
+        self.assertEqual(resp.status_code, 200)
+        from interaction.models import Comment
+
+        saved = Comment.objects.get(content="带通知的回复")
+        self.assertEqual(saved.email, "visitor@example.com")
+        self.assertTrue(saved.notify)
 
 
 class SearchNoneQueryTest(TestCase):

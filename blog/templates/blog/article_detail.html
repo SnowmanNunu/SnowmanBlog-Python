@@ -59,8 +59,12 @@
         {% csrf_token %}
         {% if not user.is_authenticated %}
             <input type="text" name="nickname" placeholder="昵称" required>
+            <input type="email" name="email" placeholder="邮箱(选填,用于被回复时通知)" />
         {% endif %}
         <textarea name="content" placeholder="写下你的评论..." required></textarea>
+        <label class="notify-label">
+            <input type="checkbox" name="notify" value="on" /> 有人回复我时邮件通知我
+        </label>
         <button type="submit">发表评论</button>
     </form>
     <ul class="comment-list">

@@ -13,7 +13,9 @@
 <body>
 <header class="site-header">
     <div class="container header-inner">
-        <a class="brand" href="{% url 'blog:article_list' %}">☃️ {{ site_title|default:"SnowmanBlog" }}</a>
+        <a class="brand" href="{% url 'blog:article_list' %}">
+            {% if site_logo %}<img class="brand-logo" src="{{ site_logo }}" alt="{{ site_title|default:'SnowmanBlog' }}">{% else %}☃️ {{ site_title|default:"SnowmanBlog" }}{% endif %}
+        </a>
         <nav class="nav">
             <a href="{% url 'blog:article_list' %}">首页</a>
             <a href="{% url 'blog:column_list' %}">专栏</a>
@@ -57,12 +59,15 @@
         btn.textContent = next === 'dark' ? '☀️' : '🌙';
     });
 
-    // 快捷键:按 "/" 跳转到搜索页并聚焦输入框(非输入框聚焦时)
+    // 快捷键:按 "Ctrl+K" 或 "/" 跳转到搜索页并聚焦(非输入框聚焦时)
     document.addEventListener('keydown', function (e) {
         var tag = (e.target && e.target.tagName) || '';
         // 在输入框/文本域/select 里不拦截
         if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
-        if (e.key === '/') {
+        if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+            e.preventDefault();
+            window.location.href = '{% url "blog:search" %}';
+        } else if (e.key === '/') {
             e.preventDefault();
             window.location.href = '{% url "blog:search" %}';
         }
